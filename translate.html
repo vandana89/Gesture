@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignSpeak AI - Translation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Righteous&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        h1 {
+            font-family: 'Righteous', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            color: #667eea;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .recognized-box {
+            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            margin-bottom: 20px;
+        }
+
+        .box-label {
+            font-size: 0.9rem;
+            color: #667eea;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .box-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .language-btn {
+            padding: 20px;
+            background: #f5f7fa;
+            border: 3px solid transparent;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #555;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .language-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .language-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .flag {
+            font-size: 1.5rem;
+        }
+
+        .translated-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .translated-section.visible {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .translated-box {
+            background: linear-gradient(135deg, #f093fb20 0%, #f5576c20 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid #f5576c;
+            margin-bottom: 20px;
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 18px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-speak {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-speak:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-stop {
+            background: #f5f7fa;
+            color: #f5576c;
+            border: 2px solid #f5576c;
+        }
+
+        .btn-stop:hover {
+            background: #f5576c;
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .speaking-indicator {
+            display: none;
+            align-items: center;
+            gap: 15px;
+            background: #fff3f3;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 15px;
+            border: 2px solid #f5576c;
+        }
+
+        .speaking-indicator.active {
+            display: flex;
+        }
+
+        .wave {
+            width: 8px;
+            height: 30px;
+            background: #f5576c;
+            border-radius: 4px;
+            animation: wave 1s ease-in-out infinite;
+        }
+
+        .wave:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .wave:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .wave:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes wave {
+            0%, 100% {
+                height: 30px;
+            }
+            50% {
+                height: 50px;
+            }
+        }
+
+        .next-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: white;
+            padding: 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(74, 222, 128, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .box-text {
+                font-size: 1.4rem;
+            }
+
+            .language-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="camera_emergency.html" class="back-btn">
+            <span>←</span>
+            <span>Back to Camera</span>
+        </a>
+
+        <div class="header">
+            <h1>🌐 Translation & Audio</h1>
+            <p class="subtitle">Translate gesture into multiple languages with voice output</p>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">✅ Recognized Gesture</h2>
+            <div class="recognized-box">
+                <div class="box-label">Original Sign Language</div>
+                <div class="box-text" id="recognizedText">Loading...</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">🌍 Select Translation Language</h2>
+            
+            <div class="language-grid">
+                <button class="language-btn" data-lang="en" data-voice="en-US">
+                    <span class="flag">🇬🇧</span>
+                    <span>English</span>
+                </button>
+                <button class="language-btn" data-lang="te" data-voice="te-IN">
+                    <span class="flag">🇮🇳</span>
+                    <span>Telugu (తెలుగు)</span>
+                </button>
+                <button class="language-btn" data-lang="hi" data-voice="hi-IN">
+                    <span class="flag">🇮🇳</span>
+                    <span>Hindi (हिन्दी)</span>
+                </button>
+            </div>
+
+            <div class="translated-section" id="translatedSection">
+                <div class="translated-box">
+                    <div class="box-label">Translated Text (<span id="selectedLang">English</span>)</div>
+                    <div class="box-text" id="translatedText">Select a language above</div>
+                </div>
+
+                <div class="audio-controls">
+                    <button class="btn btn-speak" id="speakBtn" disabled>
+                        🔊 Speak Translation
+                    </button>
+                    <button class="btn btn-stop" id="stopBtn" disabled>
+                        ⏹️ Stop Audio
+                    </button>
+                </div>
+
+                <div class="speaking-indicator" id="speakingIndicator">
+                    <div class="wave"></div>
+                    <div class="wave"></div>
+                    <div class="wave"></div>
+                    <div class="wave"></div>
+                    <span style="font-weight: 600; color: #f5576c;">Speaking...</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="next-btn" onclick="window.location.href='thankyou.html'">
+            🎉 Finish & View Summary
+        </button>
+    </div>
+
+    <script>
+        const translations = {
+            "How are you?": {
+                en: "How are you?",
+                te: "మీరు ఎలా ఉన్నారు?",
+                hi: "आप कैसे हैं?"
+            },
+            "I am fine": {
+                en: "I am fine",
+                te: "నేను బాగున్నాను",
+                hi: "मैं ठीक हूँ"
+            },
+            "Bring water": {
+                en: "Bring water",
+                te: "నీరు తీసుకురండి",
+                hi: "पानी लाओ"
+            },
+            "Thank you": {
+                en: "Thank you",
+                te: "ధన్యవాదాలు",
+                hi: "धन्यवाद"
+            },
+            "Good morning": {
+                en: "Good morning",
+                te: "శుభోదయం",
+                hi: "सुप्रभात"
+            },
+            "Help me": {
+                en: "Help me",
+                te: "నాకు సహాయం చేయండి",
+                hi: "मेरी मदद करो"
+            },
+            "I need food": {
+                en: "I need food",
+                te: "నాకు ఆహారం కావాలి",
+                hi: "मुझे खाना चाहिए"
+            },
+            "Where is bathroom?": {
+                en: "Where is the bathroom?",
+                te: "బాత్రూమ్ ఎక్కడ ఉంది?",
+                hi: "बाथरूम कहाँ है?"
+            },
+            "Nice to meet you": {
+                en: "Nice to meet you",
+                te: "మిమ్మల్ని కలవడం ఆనందంగా ఉంది",
+                hi: "आपसे मिलकर खुशी हुई"
+            },
+            "See you later": {
+                en: "See you later",
+                te: "తర్వాత కలుద్దాం",
+                hi: "फिर मिलेंगे"
+            },
+            "I love you": {
+                en: "I love you",
+                te: "నేను నిన్ను ప్రేమిస్తున్నాను",
+                hi: "मैं तुमसे प्यार करता हूँ"
+            },
+            "What is your name?": {
+                en: "What is your name?",
+                te: "మీ పేరు ఏమిటి?",
+                hi: "आपका नाम क्या है?"
+            },
+            "My name is...": {
+                en: "My name is...",
+                te: "నా పేరు...",
+                hi: "मेरा नाम है..."
+            },
+            "Please wait": {
+                en: "Please wait",
+                te: "దయచేసి వేచి ఉండండి",
+                hi: "कृपया प्रतीक्षा करें"
+            },
+            "I don't understand": {
+                en: "I don't understand",
+                te: "నాకు అర్థం కాలేదు",
+                hi: "मुझे समझ नहीं आया"
+            },
+            "Can you help me?": {
+                en: "Can you help me?",
+                te: "మీరు నాకు సహాయం చేయగలరా?",
+                hi: "क्या आप मेरी मदद कर सकते हैं?"
+            },
+            "I am sorry": {
+                en: "I am sorry",
+                te: "నన్ను క్షమించండి",
+                hi: "मुझे खेद है"
+            },
+            "Excuse me": {
+                en: "Excuse me",
+                te: "క్షమించండి",
+                hi: "माफ़ कीजिए"
+            },
+            "How much does it cost?": {
+                en: "How much does it cost?",
+                te: "ఇది ఎంత ఖర్చు అవుతుంది?",
+                hi: "इसकी कीमत कितनी है?"
+            },
+            "I need a doctor": {
+                en: "I need a doctor",
+                te: "నాకు డాక్టర్ కావాలి",
+                hi: "मुझे डॉक्टर की जरूरत है"
+            }
+        };
+
+        let currentGesture = '';
+        let currentLanguage = 'en';
+        let currentTranslation = '';
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+
+        const recognizedText = document.getElementById('recognizedText');
+        const translatedSection = document.getElementById('translatedSection');
+        const translatedText = document.getElementById('translatedText');
+        const selectedLang = document.getElementById('selectedLang');
+        const speakBtn = document.getElementById('speakBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const speakingIndicator = document.getElementById('speakingIndicator');
+        const languageButtons = document.querySelectorAll('.language-btn');
+
+        window.addEventListener('load', () => {
+            currentGesture = localStorage.getItem('currentGesture');
+            if (currentGesture) {
+                recognizedText.textContent = currentGesture;
+            } else {
+                recognizedText.textContent = 'No gesture recognized';
+            }
+        });
+
+        languageButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                languageButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const lang = btn.dataset.lang;
+                currentLanguage = lang;
+                
+                const langNames = {
+                    en: 'English',
+                    te: 'Telugu (తెలుగు)',
+                    hi: 'Hindi (हिन्दी)'
+                };
+                
+                selectedLang.textContent = langNames[lang];
+                
+                if (currentGesture && translations[currentGesture]) {
+                    currentTranslation = translations[currentGesture][lang];
+                    translatedText.textContent = currentTranslation;
+                    translatedSection.classList.add('visible');
+                    speakBtn.disabled = false;
+                } else {
+                    translatedText.textContent = 'Translation not available';
+                    speakBtn.disabled = true;
+                }
+            });
+        });
+
+        speakBtn.addEventListener('click', () => {
+            if (!currentTranslation) return;
+
+            speechSynthesis.cancel();
+            currentUtterance = new SpeechSynthesisUtterance(currentTranslation);
+            
+            const voiceLangs = {
+                en: 'en-US',
+                te: 'te-IN',
+                hi: 'hi-IN'
+            };
+            currentUtterance.lang = voiceLangs[currentLanguage];
+            currentUtterance.rate = 0.9;
+            currentUtterance.pitch = 1;
+            currentUtterance.volume = 1;
+
+            currentUtterance.onstart = () => {
+                speakingIndicator.classList.add('active');
+                speakBtn.disabled = true;
+                stopBtn.disabled = false;
+            };
+
+            currentUtterance.onend = () => {
+                speakingIndicator.classList.remove('active');
+                speakBtn.disabled = false;
+                stopBtn.disabled = true;
+            };
+
+            currentUtterance.onerror = () => {
+                speakingIndicator.classList.remove('active');
+                speakBtn.disabled = false;
+                stopBtn.disabled = true;
+                alert('Error: Text-to-speech failed. This language might not be supported.');
+            };
+
+            speechSynthesis.speak(currentUtterance);
+        });
+
+        stopBtn.addEventListener('click', () => {
+            speechSynthesis.cancel();
+            speakingIndicator.classList.remove('active');
+            speakBtn.disabled = false;
+            stopBtn.disabled = true;
+        });
+
+        window.addEventListener('beforeunload', () => {
+            speechSynthesis.cancel();
+        });
+    </script>
+</body>
+</html>

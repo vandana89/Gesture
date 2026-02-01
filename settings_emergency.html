@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignSpeak AI - Emergency Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Righteous&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        h1 {
+            font-family: 'Righteous', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            color: #667eea;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-group {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .setting-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .setting-label {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setting-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .gesture-checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+        }
+
+        .gesture-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            background: #f5f7fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .gesture-checkbox:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .gesture-checkbox.emergency {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .gesture-checkbox.emergency:hover {
+            border-color: #ef4444;
+        }
+
+        .gesture-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .gesture-checkbox label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .proximity-method {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .method-card {
+            padding: 20px;
+            background: #f5f7fa;
+            border: 3px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .method-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+        }
+
+        .method-card.selected {
+            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+            border-color: #667eea;
+        }
+
+        .method-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .method-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .method-desc {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .save-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 5px;
+        }
+
+        .info-box-text {
+            font-size: 0.9rem;
+            color: #1e3a8a;
+            line-height: 1.6;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            border-left: 5px solid #10b981;
+        }
+
+        .notification.show {
+            display: block;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="camera_emergency.html" class="back-btn">
+            <span>←</span>
+            <span>Back to Camera</span>
+        </a>
+
+        <div class="header">
+            <h1>⚙️ Emergency Settings</h1>
+            <p class="subtitle">Configure when and how to send emergency alerts</p>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">🚨 Auto-Send Settings</h2>
+            
+            <div class="setting-group">
+                <div class="setting-label">
+                    <span>Enable Auto-Send</span>
+                </div>
+                <div class="setting-description">
+                    Automatically send messages to emergency contacts when specific gestures are detected and no one is nearby.
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="autoSendEnabled" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-group">
+                <div class="setting-label">
+                    <span>📝 Emergency Gestures</span>
+                </div>
+                <div class="setting-description">
+                    Select which gestures should trigger automatic emergency alerts when detected.
+                </div>
+                <div class="gesture-checklist" id="gestureList">
+                    <!-- Gestures will be populated here -->
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <div class="setting-label">
+                    <span>📍 Proximity Detection Method</span>
+                </div>
+                <div class="setting-description">
+                    Choose how the system determines if someone is nearby.
+                </div>
+                <div class="proximity-method">
+                    <div class="method-card selected" data-method="auto">
+                        <div class="method-icon">🤖</div>
+                        <div class="method-name">Automatic</div>
+                        <div class="method-desc">Random simulation</div>
+                    </div>
+                    <div class="method-card" data-method="manual">
+                        <div class="method-icon">👆</div>
+                        <div class="method-name">Manual Toggle</div>
+                        <div class="method-desc">You control it</div>
+                    </div>
+                    <div class="method-card" data-method="bluetooth">
+                        <div class="method-icon">📱</div>
+                        <div class="method-name">Bluetooth</div>
+                        <div class="method-desc">Detect devices</div>
+                    </div>
+                    <div class="method-card" data-method="motion">
+                        <div class="method-icon">🏃</div>
+                        <div class="method-name">Motion</div>
+                        <div class="method-desc">Detect movement</div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-box-title">💡 How It Works</div>
+                    <div class="info-box-text">
+                        When proximity detection determines no one is nearby AND you perform an emergency gesture, 
+                        the system will automatically send alerts to all your emergency contacts via WhatsApp/SMS.
+                    </div>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <div class="setting-label">
+                    <span>⏱️ Auto-Send Delay</span>
+                </div>
+                <div class="setting-description">
+                    Wait time before sending automatic alerts (gives you time to cancel if needed).
+                </div>
+                <select id="autoSendDelay" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-family: 'Poppins', sans-serif; font-size: 1rem;">
+                    <option value="0">Immediate (0 seconds)</option>
+                    <option value="3" selected>3 seconds</option>
+                    <option value="5">5 seconds</option>
+                    <option value="10">10 seconds</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <div class="setting-label">
+                    <span>🔔 Alert Sound</span>
+                </div>
+                <div class="setting-description">
+                    Play a sound when auto-sending an emergency alert.
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="alertSoundEnabled" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <button class="save-btn" id="saveBtn">
+                💾 Save Settings
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="notification" id="notification">
+        ✅ Settings saved successfully!
+    </div>
+
+    <script>
+        const allGestures = [
+            "How are you?", "I am fine", "Bring water", "Thank you",
+            "Good morning", "Help me", "I need food", "Where is bathroom?",
+            "Nice to meet you", "See you later", "I love you",
+            "What is your name?", "My name is...", "Please wait",
+            "I don't understand", "Can you help me?", "I am sorry",
+            "Excuse me", "How much does it cost?", "I need a doctor"
+        ];
+
+        const defaultEmergencyGestures = ["Help me", "I need a doctor", "I need food", "Can you help me?"];
+
+        let emergencySettings = {
+            autoSendEnabled: true,
+            emergencyGestures: defaultEmergencyGestures,
+            proximityMethod: 'auto',
+            autoSendDelay: 3,
+            alertSoundEnabled: true
+        };
+
+        function loadSettings() {
+            const saved = localStorage.getItem('emergencySettings');
+            if (saved) {
+                emergencySettings = JSON.parse(saved);
+            }
+            applySettings();
+        }
+
+        function applySettings() {
+            document.getElementById('autoSendEnabled').checked = emergencySettings.autoSendEnabled;
+            document.getElementById('autoSendDelay').value = emergencySettings.autoSendDelay;
+            document.getElementById('alertSoundEnabled').checked = emergencySettings.alertSoundEnabled;
+
+            // Render gestures
+            const gestureList = document.getElementById('gestureList');
+            gestureList.innerHTML = allGestures.map(gesture => {
+                const isEmergency = emergencySettings.emergencyGestures.includes(gesture);
+                return `
+                    <div class="gesture-checkbox ${isEmergency ? 'emergency' : ''}">
+                        <input type="checkbox" id="gesture-${gesture}" ${isEmergency ? 'checked' : ''}>
+                        <label for="gesture-${gesture}">${gesture}</label>
+                    </div>
+                `;
+            }).join('');
+
+            // Select proximity method
+            document.querySelectorAll('.method-card').forEach(card => {
+                card.classList.remove('selected');
+                if (card.dataset.method === emergencySettings.proximityMethod) {
+                    card.classList.add('selected');
+                }
+            });
+        }
+
+        function saveSettings() {
+            emergencySettings.autoSendEnabled = document.getElementById('autoSendEnabled').checked;
+            emergencySettings.autoSendDelay = parseInt(document.getElementById('autoSendDelay').value);
+            emergencySettings.alertSoundEnabled = document.getElementById('alertSoundEnabled').checked;
+
+            // Collect checked gestures
+            emergencySettings.emergencyGestures = [];
+            allGestures.forEach(gesture => {
+                const checkbox = document.getElementById(`gesture-${gesture}`);
+                if (checkbox && checkbox.checked) {
+                    emergencySettings.emergencyGestures.push(gesture);
+                }
+            });
+
+            localStorage.setItem('emergencySettings', JSON.stringify(emergencySettings));
+            
+            // Show notification
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+
+        // Proximity method selection
+        document.querySelectorAll('.method-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                emergencySettings.proximityMethod = card.dataset.method;
+            });
+        });
+
+        // Save button
+        document.getElementById('saveBtn').addEventListener('click', saveSettings);
+
+        // Toggle gestures
+        document.addEventListener('change', (e) => {
+            if (e.target.type === 'checkbox' && e.target.id.startsWith('gesture-')) {
+                const gestureBox = e.target.closest('.gesture-checkbox');
+                if (e.target.checked) {
+                    gestureBox.classList.add('emergency');
+                } else {
+                    gestureBox.classList.remove('emergency');
+                }
+            }
+        });
+
+        // Load settings on page load
+        window.addEventListener('load', loadSettings);
+    </script>
+</body>
+</html>

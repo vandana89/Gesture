@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignSpeak AI - Thank You</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Righteous&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 30px;
+            padding: 60px 50px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .success-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: bounce 1s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        h1 {
+            font-family: 'Righteous', cursive;
+            font-size: 3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 40px;
+            line-height: 1.8;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            text-align: left;
+        }
+
+        .summary-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .stat:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 18px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .features-list {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 0;
+            text-align: left;
+        }
+
+        .feature-icon {
+            font-size: 1.8rem;
+            min-width: 40px;
+        }
+
+        .feature-text {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .thank-you-note {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(102, 126, 234, 0.2);
+            color: #888;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 30px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✅</div>
+        <h1>Thank You!</h1>
+        <p class="message">
+            Your sign language gesture has been successfully recognized, translated, and converted to speech. 
+            SignSpeak AI is proud to help break communication barriers using the power of deep learning.
+        </p>
+
+        <div class="summary-card">
+            <div class="summary-title">📊 Session Summary</div>
+            <div class="stat">
+                <span class="stat-label">Gestures Recognized</span>
+                <span class="stat-value" id="totalGestures">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Languages Used</span>
+                <span class="stat-value">3</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">AI Model</span>
+                <span class="stat-value">CNN (5 layers)</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Processing Method</span>
+                <span class="stat-value">Real-time</span>
+            </div>
+        </div>
+
+        <div class="features-list">
+            <div class="feature-item">
+                <div class="feature-icon">🧠</div>
+                <div class="feature-text">
+                    <strong>Deep Learning Powered:</strong> Using a 5-layer Convolutional Neural Network with 19,188 parameters
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">👋</div>
+                <div class="feature-text">
+                    <strong>MediaPipe Integration:</strong> Real-time hand tracking with 21 landmark detection
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🌐</div>
+                <div class="feature-text">
+                    <strong>Multi-Language Support:</strong> English, Telugu, and Hindi translations
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🔊</div>
+                <div class="feature-text">
+                    <strong>Text-to-Speech:</strong> Natural voice output in selected language
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-text">
+                    <strong>Privacy First:</strong> All processing happens on your device, no data sent to servers
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <a href="index_emergency.html" class="btn btn-primary">
+                🏠 Return to Home
+            </a>
+            <a href="camera_emergency.html" class="btn btn-secondary">
+                🔄 Try Again
+            </a>
+        </div>
+
+        <div class="thank-you-note">
+            "Technology is best when it brings people together."<br>
+            Thank you for using SignSpeak AI to bridge communication gaps.
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            const history = localStorage.getItem('signLanguageHistory');
+            if (history) {
+                const parsed = JSON.parse(history);
+                document.getElementById('totalGestures').textContent = parsed.length;
+            }
+        });
+    </script>
+</body>
+</html>

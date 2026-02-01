@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignSpeak AI - Welcome (Emergency Edition)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Righteous&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape1 {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape2 {
+            width: 200px;
+            height: 200px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+
+        .shape3 {
+            width: 150px;
+            height: 150px;
+            bottom: 10%;
+            left: 30%;
+            animation-delay: 6s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-50px) rotate(180deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 60px 50px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: slideIn 1s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-family: 'Righteous', cursive;
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            color: #555;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .emergency-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 40px;
+            animation: pulse-red 2s infinite;
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .feature {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px 20px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .feature.emergency-feature {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+        }
+
+        .feature.emergency-feature:hover {
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            font-family: 'Poppins', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .settings-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+            font-family: 'Poppins', sans-serif;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .settings-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(239, 68, 68, 0.6);
+        }
+
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin: 10px 5px;
+            font-size: 0.9rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .emergency-info {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 2px solid #ef4444;
+            border-radius: 20px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .emergency-info-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #dc2626;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .emergency-info-text {
+            color: #991b1b;
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .emergency-info-text strong {
+            color: #7f1d1d;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(102, 126, 234, 0.2);
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .container {
+                padding: 40px 30px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .start-btn {
+                padding: 18px 40px;
+                font-size: 1.1rem;
+            }
+
+            .settings-btn {
+                padding: 16px 35px;
+                font-size: 1rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); }
+            50% { box-shadow: 0 15px 50px rgba(102, 126, 234, 0.7); }
+            100% { box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="floating-shape shape1"></div>
+        <div class="floating-shape shape2"></div>
+        <div class="floating-shape shape3"></div>
+    </div>
+
+    <div class="container">
+        <div class="logo">🤟</div>
+        <h1>SignSpeak AI</h1>
+        <p class="tagline">Breaking Communication Barriers with Deep Learning</p>
+        <div class="emergency-badge">🚨 NEW: Emergency Communication Feature</div>
+
+        <div class="emergency-info">
+            <div class="emergency-info-title">
+                <span>🚨</span>
+                <span>Emergency Communication</span>
+            </div>
+            <div class="emergency-info-text">
+                When you're <strong>far from relatives or caregivers</strong>, SignSpeak AI can automatically 
+                send your gesture message via <strong>WhatsApp or SMS</strong> to emergency contacts. 
+                Perfect for urgent situations when no one is nearby to help!
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🎥</div>
+                <div class="feature-title">Real-time Recognition</div>
+                <div class="feature-desc">CNN-powered gesture detection</div>
+            </div>
+            <div class="feature emergency-feature">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">Auto WhatsApp/SMS</div>
+                <div class="feature-desc">Send to emergency contacts</div>
+            </div>
+            <div class="feature emergency-feature">
+                <div class="feature-icon">📍</div>
+                <div class="feature-title">Proximity Detection</div>
+                <div class="feature-desc">Know when help is nearby</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🌐</div>
+                <div class="feature-title">Multi-Language</div>
+                <div class="feature-desc">English, Telugu & Hindi</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔊</div>
+                <div class="feature-title">Text-to-Speech</div>
+                <div class="feature-desc">Audio output in any language</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🧠</div>
+                <div class="feature-title">Deep Learning</div>
+                <div class="feature-desc">TensorFlow.js + MediaPipe</div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <a href="camera_emergency.html" class="start-btn pulse">
+                Start Recognition
+            </a>
+            <a href="settings_emergency.html" class="settings-btn">
+                ⚙️ Emergency Settings
+            </a>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <div class="tech-badge">🧠 CNN Neural Network</div>
+            <div class="tech-badge">👋 MediaPipe Hands</div>
+            <div class="tech-badge">⚡ TensorFlow.js</div>
+            <div class="tech-badge" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                🚨 Emergency Alerts
+            </div>
+        </div>
+
+        <div class="footer">
+            <strong>20 Gesture Classes</strong> • Real-time Processing • Privacy-First (On-Device AI) • <strong style="color: #ef4444;">Emergency Communication Ready</strong>
+        </div>
+    </div>
+</body>
+</html>

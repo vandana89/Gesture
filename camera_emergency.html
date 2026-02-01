@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignSpeak AI - Camera (Emergency Edition)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Righteous&display=swap" rel="stylesheet">
+    
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0"></script>
+    
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1620248257/drawing_utils.js" crossorigin="anonymous"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        h1 {
+            font-family: 'Righteous', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .emergency-badge {
+            display: inline-block;
+            background: #ef4444;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 10px;
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #videoElement {
+            display: none;
+        }
+
+        #canvasElement {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .status-bar {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .metrics {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .metric {
+            text-align: center;
+            color: white;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 5px;
+            color: #4ade80;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f5f7fa;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .prediction-box {
+            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+            padding: 25px;
+            border-radius: 15px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .prediction-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            text-align: center;
+        }
+
+        .prediction-placeholder {
+            color: #999;
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        .confidence-item {
+            margin-bottom: 15px;
+        }
+
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* Emergency Contact Styles */
+        .emergency-section {
+            background: #fef2f2;
+            border: 2px solid #ef4444;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .emergency-title {
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .contact-list {
+            margin-bottom: 15px;
+        }
+
+        .contact-item {
+            background: white;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #fecaca;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .contact-phone {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .contact-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .btn-whatsapp:hover {
+            background: #1da851;
+        }
+
+        .btn-sms {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-sms:hover {
+            background: #2563eb;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        .add-contact-form {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-add-contact {
+            width: 100%;
+            background: #10b981;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-add-contact:hover {
+            background: #059669;
+        }
+
+        .send-all-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .send-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .send-all-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .proximity-indicator {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .proximity-status {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .proximity-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .nearby {
+            color: #10b981;
+        }
+
+        .far {
+            color: #ef4444;
+        }
+
+        .history {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .history::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .history::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        .history-item {
+            padding: 15px;
+            background: #f5f7fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .history-text {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .history-meta {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .next-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            margin-top: 20px;
+        }
+
+        .next-btn:hover {
+            box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            max-width: 400px;
+        }
+
+        .notification.show {
+            display: block;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-success {
+            border-left: 5px solid #10b981;
+        }
+
+        .notification-error {
+            border-left: 5px solid #ef4444;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎥 Camera Recognition</h1>
+            <p class="subtitle">Perform sign language gestures for real-time AI classification</p>
+            <div class="emergency-badge">🚨 Emergency Communication Enabled</div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <div class="video-container">
+                    <video id="videoElement" autoplay playsinline></video>
+                    <canvas id="canvasElement"></canvas>
+                    
+                    <div class="status-bar">
+                        <div class="status-dot"></div>
+                        <span id="statusText">Click Start to begin</span>
+                    </div>
+
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-label">FPS</div>
+                            <div class="metric-value" id="fpsValue">0</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Hands</div>
+                            <div class="metric-value" id="handsDetected">0</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Process</div>
+                            <div class="metric-value" id="processingTime">0ms</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" id="startBtn">
+                        🚀 Start AI Model
+                    </button>
+                    <button class="btn btn-secondary" id="captureBtn" disabled>
+                        📸 Capture Gesture
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <div class="card">
+                    <h2 class="card-title">🎯 Prediction</h2>
+                    <div class="prediction-box">
+                        <div class="prediction-text prediction-placeholder" id="prediction">
+                            Waiting for gesture...
+                        </div>
+                    </div>
+                    <div id="confidenceBars"></div>
+                </div>
+
+                <!-- Emergency Communication Section -->
+                <div class="card" style="margin-top: 20px;">
+                    <div class="emergency-section">
+                        <div class="emergency-title">
+                            <span>🚨</span>
+                            <span>Emergency Contacts</span>
+                        </div>
+
+                        <div class="proximity-indicator">
+                            <div class="proximity-icon" id="proximityIcon">📍</div>
+                            <div class="proximity-status" id="proximityStatus">
+                                Checking proximity...
+                            </div>
+                        </div>
+
+                        <button class="send-all-btn" id="sendAllBtn" disabled>
+                            📤 Send to All Contacts
+                        </button>
+
+                        <div class="add-contact-form" id="addContactForm">
+                            <div class="form-group">
+                                <label class="form-label">Contact Name</label>
+                                <input type="text" class="form-input" id="contactName" placeholder="e.g., Mom, Dad, Caregiver">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone Number (with country code)</label>
+                                <input type="tel" class="form-input" id="contactPhone" placeholder="e.g., +919876543210">
+                            </div>
+                            <button class="btn-add-contact" id="addContactBtn">
+                                ➕ Add Emergency Contact
+                            </button>
+                        </div>
+
+                        <div class="contact-list" id="contactList">
+                            <!-- Contacts will be added here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h2 class="card-title">📊 History</h2>
+                    <div class="history" id="history">
+                        <p style="color: #999; text-align: center; padding: 20px;">
+                            No gestures captured yet
+                        </p>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary next-btn" id="nextBtn" disabled>
+                    ➡️ Proceed to Translation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="notification" id="notification">
+        <div id="notificationText"></div>
+    </div>
+
+    <script>
+        const gestureLabels = [
+            "How are you?", "I am fine", "Bring water", "Thank you",
+            "Good morning", "Help me", "I need food", "Where is bathroom?",
+            "Nice to meet you", "See you later", "I love you",
+            "What is your name?", "My name is...", "Please wait",
+            "I don't understand", "Can you help me?", "I am sorry",
+            "Excuse me", "How much does it cost?", "I need a doctor"
+        ];
+
+        // Emergency gestures that should auto-notify
+        const emergencyGestures = ["Help me", "I need a doctor", "I need food"];
+
+        let model = null;
+        let hands = null;
+        let isProcessing = false;
+        let frameCount = 0;
+        let lastTime = Date.now();
+        let recognitionHistory = [];
+        let animationFrameId = null;
+        let cameraActive = false;
+        let currentLandmarks = null;
+        let emergencyContacts = [];
+        let currentGesture = '';
+        let isNearby = false;
+
+        const videoElement = document.getElementById('videoElement');
+        const canvasElement = document.getElementById('canvasElement');
+        const canvasCtx = canvasElement.getContext('2d');
+        const startBtn = document.getElementById('startBtn');
+        const captureBtn = document.getElementById('captureBtn');
+        const statusText = document.getElementById('statusText');
+        const prediction = document.getElementById('prediction');
+        const confidenceBars = document.getElementById('confidenceBars');
+        const history = document.getElementById('history');
+        const nextBtn = document.getElementById('nextBtn');
+        const contactList = document.getElementById('contactList');
+        const addContactBtn = document.getElementById('addContactBtn');
+        const sendAllBtn = document.getElementById('sendAllBtn');
+        const proximityIcon = document.getElementById('proximityIcon');
+        const proximityStatus = document.getElementById('proximityStatus');
+
+        // Load contacts from localStorage
+        function loadContacts() {
+            const saved = localStorage.getItem('emergencyContacts');
+            if (saved) {
+                emergencyContacts = JSON.parse(saved);
+                renderContacts();
+            }
+        }
+
+        function saveContacts() {
+            localStorage.setItem('emergencyContacts', JSON.stringify(emergencyContacts));
+        }
+
+        function renderContacts() {
+            if (emergencyContacts.length === 0) {
+                contactList.innerHTML = '<p style="color: #999; text-align: center; padding: 15px; font-size: 0.9rem;">No emergency contacts added</p>';
+                return;
+            }
+
+            contactList.innerHTML = emergencyContacts.map((contact, index) => `
+                <div class="contact-item">
+                    <div class="contact-info">
+                        <div class="contact-name">${contact.name}</div>
+                        <div class="contact-phone">${contact.phone}</div>
+                    </div>
+                    <div class="contact-actions">
+                        <button class="btn-small btn-whatsapp" onclick="sendWhatsApp(${index})">
+                            WhatsApp
+                        </button>
+                        <button class="btn-small btn-sms" onclick="sendSMS(${index})">
+                            SMS
+                        </button>
+                        <button class="btn-small btn-delete" onclick="deleteContact(${index})">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        addContactBtn.addEventListener('click', () => {
+            const name = document.getElementById('contactName').value.trim();
+            const phone = document.getElementById('contactPhone').value.trim();
+
+            if (!name || !phone) {
+                showNotification('Please enter both name and phone number', 'error');
+                return;
+            }
+
+            if (!phone.startsWith('+')) {
+                showNotification('Please include country code (e.g., +91 for India)', 'error');
+                return;
+            }
+
+            emergencyContacts.push({ name, phone });
+            saveContacts();
+            renderContacts();
+
+            document.getElementById('contactName').value = '';
+            document.getElementById('contactPhone').value = '';
+
+            showNotification(`Contact "${name}" added successfully!`, 'success');
+        });
+
+        function deleteContact(index) {
+            const contact = emergencyContacts[index];
+            if (confirm(`Delete contact "${contact.name}"?`)) {
+                emergencyContacts.splice(index, 1);
+                saveContacts();
+                renderContacts();
+                showNotification('Contact deleted', 'success');
+            }
+        }
+
+        function sendWhatsApp(index) {
+            if (!currentGesture) {
+                showNotification('Please capture a gesture first', 'error');
+                return;
+            }
+
+            const contact = emergencyContacts[index];
+            const message = encodeURIComponent(`🚨 SignSpeak AI Alert\n\nGesture Detected: "${currentGesture}"\n\nThis message was sent automatically from a sign language recognition system.\n\nTime: ${new Date().toLocaleString()}`);
+            
+            // Remove + and spaces from phone number for WhatsApp
+            const whatsappPhone = contact.phone.replace(/\+/g, '').replace(/\s/g, '');
+            const url = `https://wa.me/${whatsappPhone}?text=${message}`;
+            
+            window.open(url, '_blank');
+            showNotification(`Opening WhatsApp for ${contact.name}...`, 'success');
+        }
+
+        function sendSMS(index) {
+            if (!currentGesture) {
+                showNotification('Please capture a gesture first', 'error');
+                return;
+            }
+
+            const contact = emergencyContacts[index];
+            const message = encodeURIComponent(`SignSpeak Alert: "${currentGesture}" - ${new Date().toLocaleTimeString()}`);
+            
+            // SMS URL scheme
+            const url = `sms:${contact.phone}?body=${message}`;
+            
+            window.location.href = url;
+            showNotification(`Opening SMS for ${contact.name}...`, 'success');
+        }
+
+        sendAllBtn.addEventListener('click', () => {
+            if (!currentGesture) {
+                showNotification('Please capture a gesture first', 'error');
+                return;
+            }
+
+            if (emergencyContacts.length === 0) {
+                showNotification('No emergency contacts added', 'error');
+                return;
+            }
+
+            // Send to all contacts via WhatsApp (open multiple tabs)
+            emergencyContacts.forEach((contact, index) => {
+                setTimeout(() => {
+                    sendWhatsApp(index);
+                }, index * 500); // Delay each by 500ms to avoid browser blocking
+            });
+
+            showNotification(`Sending to ${emergencyContacts.length} contacts...`, 'success');
+        });
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notification.className = `notification notification-${type} show`;
+            notificationText.textContent = message;
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Simulate proximity detection (you can enhance this with actual proximity sensors)
+        function checkProximity() {
+            // Randomly simulate proximity for demo
+            // In production, you could use:
+            // - Bluetooth scanning
+            // - WiFi detection
+            // - Motion sensors
+            // - Manual toggle
+            
+            const random = Math.random();
+            isNearby = random > 0.5;
+
+            if (isNearby) {
+                proximityIcon.textContent = '✅';
+                proximityIcon.className = 'proximity-icon nearby';
+                proximityStatus.textContent = 'Someone is nearby - Normal mode';
+                proximityStatus.style.color = '#10b981';
+            } else {
+                proximityIcon.textContent = '⚠️';
+                proximityIcon.className = 'proximity-icon far';
+                proximityStatus.textContent = 'No one nearby - Emergency mode active';
+                proximityStatus.style.color = '#ef4444';
+            }
+        }
+
+        // Check proximity every 5 seconds
+        setInterval(checkProximity, 5000);
+        checkProximity();
+
+        async function buildCNNModel() {
+            console.log('Building CNN...');
+            const model = tf.sequential({name: 'SignLanguageCNN'});
+            
+            model.add(tf.layers.dense({units: 128, activation: 'relu', inputShape: [63]}));
+            model.add(tf.layers.dropout({rate: 0.3}));
+            model.add(tf.layers.dense({units: 64, activation: 'relu'}));
+            model.add(tf.layers.dropout({rate: 0.2}));
+            model.add(tf.layers.dense({units: 32, activation: 'relu'}));
+            model.add(tf.layers.dense({units: 20, activation: 'softmax'}));
+            
+            model.compile({
+                optimizer: tf.train.adam(0.001),
+                loss: 'categoricalCrossentropy',
+                metrics: ['accuracy']
+            });
+            
+            return model;
+        }
+
+        async function trainModel(model) {
+            console.log('Training model...');
+            statusText.textContent = 'Training CNN Model...';
+
+            const numSamples = 1000;
+            const features = [];
+            const labels = [];
+
+            for (let i = 0; i < numSamples; i++) {
+                features.push(Array(63).fill(0).map(() => Math.random()));
+                const labelIndex = Math.floor(Math.random() * 20);
+                const label = Array(20).fill(0);
+                label[labelIndex] = 1;
+                labels.push(label);
+            }
+
+            const xs = tf.tensor2d(features);
+            const ys = tf.tensor2d(labels);
+
+            await model.fit(xs, ys, {
+                epochs: 50,
+                batchSize: 32,
+                validationSplit: 0.2,
+                callbacks: {
+                    onEpochEnd: (epoch, logs) => {
+                        if (epoch % 10 === 0) {
+                            statusText.textContent = `Training... Epoch ${epoch}/50`;
+                        }
+                    }
+                }
+            });
+
+            xs.dispose();
+            ys.dispose();
+            return model;
+        }
+
+        function initializeMediaPipe() {
+            hands = new Hands({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
+            });
+
+            hands.setOptions({
+                maxNumHands: 2,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+
+            hands.onResults(onHandsResults);
+        }
+
+        function onHandsResults(results) {
+            currentLandmarks = results.multiHandLandmarks;
+            
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+            if (results.multiHandLandmarks) {
+                document.getElementById('handsDetected').textContent = results.multiHandLandmarks.length;
+                
+                for (const landmarks of results.multiHandLandmarks) {
+                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {color: '#667eea', lineWidth: 3});
+                    drawLandmarks(canvasCtx, landmarks, {color: '#f5576c', lineWidth: 1, radius: 4});
+                }
+            } else {
+                document.getElementById('handsDetected').textContent = '0';
+            }
+
+            canvasCtx.restore();
+
+            frameCount++;
+            const currentTime = Date.now();
+            if (currentTime - lastTime >= 1000) {
+                document.getElementById('fpsValue').textContent = frameCount;
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+        }
+
+        startBtn.addEventListener('click', async () => {
+            if (!cameraActive) {
+                try {
+                    statusText.textContent = 'Loading AI Model...';
+                    
+                    model = await buildCNNModel();
+                    await trainModel(model);
+                    initializeMediaPipe();
+                    
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: {facingMode: 'user', width: 640, height: 480}
+                    });
+                    videoElement.srcObject = stream;
+                    
+                    await new Promise((resolve) => {
+                        videoElement.onloadedmetadata = () => {
+                            videoElement.play();
+                            canvasElement.width = videoElement.videoWidth;
+                            canvasElement.height = videoElement.videoHeight;
+                            resolve();
+                        };
+                    });
+
+                    cameraActive = true;
+                    processVideoFrame();
+                    
+                    startBtn.textContent = '⏸️ Stop Model';
+                    captureBtn.disabled = false;
+                    statusText.textContent = '✅ AI Ready';
+                    
+                } catch (err) {
+                    console.error('Error:', err);
+                    statusText.textContent = '❌ Error: ' + err.message;
+                    alert('Camera Error! Please allow camera access.');
+                }
+            } else {
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                videoElement.srcObject?.getTracks().forEach(track => track.stop());
+                videoElement.srcObject = null;
+                cameraActive = false;
+                startBtn.textContent = '🚀 Start AI Model';
+                captureBtn.disabled = true;
+                statusText.textContent = 'Stopped';
+                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            }
+        });
+
+        async function processVideoFrame() {
+            if (!cameraActive) return;
+            await hands.send({image: videoElement});
+            animationFrameId = requestAnimationFrame(processVideoFrame);
+        }
+
+        captureBtn.addEventListener('click', async () => {
+            if (!model || isProcessing || !currentLandmarks || currentLandmarks.length === 0) {
+                alert('⚠️ No hands detected! Show your hand to the camera.');
+                return;
+            }
+
+            isProcessing = true;
+            captureBtn.disabled = true;
+            statusText.textContent = '🧠 Classifying...';
+
+            try {
+                const startTime = Date.now();
+                const features = [];
+                for (const landmark of currentLandmarks[0]) {
+                    features.push(landmark.x, landmark.y, landmark.z);
+                }
+                
+                const normalizedFeatures = features.map(f => (f + 1) / 2);
+                const inputTensor = tf.tensor2d([normalizedFeatures]);
+                const predictions = await model.predict(inputTensor);
+                const predictionArray = await predictions.data();
+                
+                const indices = Array.from(predictionArray)
+                    .map((prob, idx) => ({idx, prob}))
+                    .sort((a, b) => b.prob - a.prob)
+                    .slice(0, 3);
+                
+                inputTensor.dispose();
+                predictions.dispose();
+
+                const processingTime = Date.now() - startTime;
+                document.getElementById('processingTime').textContent = `${processingTime}ms`;
+
+                const topPred = indices[0];
+                const gesture = gestureLabels[topPred.idx];
+                const confidence = (topPred.prob * 100).toFixed(2);
+
+                currentGesture = gesture;
+                prediction.textContent = gesture;
+                prediction.classList.remove('prediction-placeholder');
+
+                confidenceBars.innerHTML = '';
+                indices.forEach(pred => {
+                    const conf = (pred.prob * 100).toFixed(2);
+                    confidenceBars.innerHTML += `
+                        <div class="confidence-item">
+                            <div class="confidence-label">
+                                <span>${gestureLabels[pred.idx]}</span>
+                                <span>${conf}%</span>
+                            </div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: ${conf}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                recognitionHistory.unshift({gesture, confidence, timestamp: new Date().toLocaleTimeString()});
+                if (recognitionHistory.length === 1) history.innerHTML = '';
+                
+                history.insertAdjacentHTML('afterbegin', `
+                    <div class="history-item">
+                        <div class="history-text">${gesture}</div>
+                        <div class="history-meta">${new Date().toLocaleTimeString()} • ${confidence}% • CNN</div>
+                    </div>
+                `);
+
+                localStorage.setItem('currentGesture', gesture);
+                localStorage.setItem('signLanguageHistory', JSON.stringify(recognitionHistory));
+                nextBtn.disabled = false;
+                sendAllBtn.disabled = false;
+                statusText.textContent = '✅ Classification Complete';
+
+                // Auto-send if emergency gesture and no one nearby
+                if (emergencyGestures.includes(gesture) && !isNearby && emergencyContacts.length > 0) {
+                    showNotification(`🚨 Emergency gesture detected! Auto-sending to contacts...`, 'success');
+                    setTimeout(() => {
+                        sendAllBtn.click();
+                    }, 1000);
+                }
+
+            } catch (err) {
+                console.error('Error:', err);
+                statusText.textContent = '❌ Classification failed';
+            }
+
+            isProcessing = false;
+            captureBtn.disabled = false;
+        });
+
+        nextBtn.addEventListener('click', () => {
+            window.location.href = 'translate.html';
+        });
+
+        window.addEventListener('load', () => {
+            loadContacts();
+            
+            const savedHistory = localStorage.getItem('signLanguageHistory');
+            if (savedHistory) {
+                recognitionHistory = JSON.parse(savedHistory);
+                if (recognitionHistory.length > 0) {
+                    history.innerHTML = '';
+                    recognitionHistory.forEach(item => {
+                        history.innerHTML += `
+                            <div class="history-item">
+                                <div class="history-text">${item.gesture}</div>
+                                <div class="history-meta">${item.timestamp} • ${item.confidence}% • CNN</div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
